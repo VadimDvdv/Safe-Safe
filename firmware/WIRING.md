@@ -3,7 +3,7 @@
 Pin assignments below match the `PIN DEFINITIONS` block in `firmware.ino`. That file
 is the source of truth.
 
-## MFRC522 RFID reader — SPI
+## MFRC522 RFID reader (SPI)
 
 | RC522 | ESP32 GPIO |
 |---|---|
@@ -18,7 +18,7 @@ is the source of truth.
 The RC522 is 3.3 V only. Connecting it to 5 V will damage it. SCK, MOSI and MISO are
 the ESP32's hardware SPI pins and are not configurable in this firmware.
 
-## SSD1306 OLED — I2C
+## SSD1306 OLED (I2C)
 
 | OLED | ESP32 GPIO |
 |---|---|

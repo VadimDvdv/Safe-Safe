@@ -1,4 +1,4 @@
-# Safe Safe - Multi-Factor IoT Smart Lock
+# Safe Safe: Multi-Factor IoT Smart Lock
 
 An electronic lock that requires three independent factors before the bolt moves:
 a PIN typed on a keypad, an RFID badge, and an explicit confirmation from a phone
@@ -12,9 +12,9 @@ category.
 | Factors | Keypad PIN, RFID badge (MFRC522), browser confirmation |
 | Peripherals | MFRC522 over SPI, SSD1306 OLED over I2C, 4x4 keypad, servo |
 | Trust model | Server holds all credentials; firmware holds only a device token |
-| Status | Working demo. Not production security — see [Known limitations](#known-limitations) |
+| Status | Working demo. Not production security. See [Known limitations](#known-limitations) |
 
-**Contents** —
+**Contents**:
 [Architecture](#architecture) ·
 [Why the server mediates](#why-the-server-mediates) ·
 [Authentication flow](#authentication-flow) ·
@@ -35,7 +35,7 @@ category.
 The ESP32 opens a WebSocket to the server on boot and authenticates with a device
 token. The dashboard authenticates separately with a JWT. The server is the only
 component that stores credentials and the only component that decides whether the
-lock opens; the ESP32 reports sensor events and acts on a single `unlock` command.
+lock opens. The ESP32 reports sensor events and acts on a single `unlock` command.
 
 PINs are stored bcrypt-hashed. RFID tag UIDs and the access log live in SQLite
 alongside the user and device records.
@@ -51,7 +51,7 @@ different address on successive scans, so device identity is not stable and the
 factor either fails constantly or has to be disabled.
 
 The available workarounds all meant defeating a privacy feature in order to build a
-security feature — pinning a static address, or pairing and persisting a bond that
+security feature: pinning a static address, or pairing and persisting a bond that
 the OS is designed to rotate away from. Instead the third factor became an explicit
 confirmation in a browser dashboard, with the server as the only holder of identity.
 
@@ -102,7 +102,7 @@ and the code ever disagree, the code is right.
 
 Two cautions that cost real debugging time: the MFRC522 is 3.3 V only and will be
 damaged by 5 V, and the servo draws more current than the ESP32's USB rail can
-supply — it needs its own 5–6 V source with grounds tied together.
+supply, so it needs its own 5-6 V source with grounds tied together.
 
 ## Setup
 
@@ -138,7 +138,7 @@ const char* DEVICE_TOKEN   = "token_from_dashboard";
 4. Board: `ESP32 Dev Module`. Partition scheme: `Huge APP (3MB No OTA/1MB SPIFFS)`.
 5. Upload.
 
-The server and the ESP32 must be on the same network — `SERVER_HOST` is a LAN
+The server and the ESP32 must be on the same network. `SERVER_HOST` is a LAN
 address, not a hostname.
 
 ## Usage

@@ -15,17 +15,17 @@ const io = new Server(server, {
   allowEIO3: true
 });
 
-// ─── MIDDLEWARE ────────────────────────────────────
+// MIDDLEWARE 
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ─── API ROUTES ───────────────────────────────────
+// API ROUTES
 
 app.use('/api/auth', authRoutes);
 app.use('/api/devices', deviceRoutes);
 
-// ─── SOCKET.IO ────────────────────────────────────
+// SOCKET.IO 
 
 const espSockets = new Map();
 const dashSockets = new Map();
@@ -36,7 +36,7 @@ app.set('espSockets', espSockets);
 io.on('connection', (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
-  // ── ESP32 authenticates with its device token ──
+  //  ESP32 authenticates with its device token 
   socket.on('esp_auth', (data) => {
     const { device_token } = data;
 
@@ -75,7 +75,7 @@ io.on('connection', (socket) => {
     });
   });
 
-  // ── Dashboard client authenticates ──
+  //  Dashboard client authenticates 
   socket.on('dash_auth', (data) => {
     const { userId } = data;
     socket.userId = userId;
@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
     console.log(`Dashboard connected for user ${userId}`);
   });
 
-  // ── ESP32 sends back a new PIN ──
+  // ESP32 sends back a new PIN 
   socket.on('pin_changed', async (data) => {
     if (!socket.deviceId) return;
 
@@ -109,7 +109,7 @@ io.on('connection', (socket) => {
     console.log(`PIN updated for device ${socket.deviceId}`);
   });
 
-  // ── ESP32 sends PIN for verification ──
+  //  ESP32 sends PIN for verification 
   socket.on('verify_pin', async (data) => {
     if (!socket.deviceId) return;
 
@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
     socket.emit('pin_verified', { success: valid });
   });
 
-  // ── ESP32 sends a newly scanned RFID tag ──
+  //  ESP32 sends a newly scanned RFID tag 
   socket.on('rfid_scanned', (data) => {
     if (!socket.deviceId) return;
 
@@ -164,7 +164,7 @@ io.on('connection', (socket) => {
     console.log(`RFID tag added: ${tag_uid} for device ${socket.deviceId}`);
   });
 
-  // ── ESP32 reports an access attempt ──
+  //  ESP32 reports an access attempt 
   socket.on('access_attempt', (data) => {
     if (!socket.deviceId) return;
 
@@ -183,7 +183,7 @@ io.on('connection', (socket) => {
     });
   });
 
-  // ── Disconnect ──
+  // Disconnect 
   socket.on('disconnect', () => {
     if (socket.deviceToken) {
       espSockets.delete(socket.deviceToken);
@@ -207,15 +207,15 @@ function notifyDashboard(userId, event, data) {
   }
 }
 
-// ─── CATCH-ALL ────────────────────────────────────
+// CATCH-ALL 
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ─── START ────────────────────────────────────────
+// START
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`\n🔒 Smart Lock Server running on http://localhost:${PORT}\n`);
+  console.log(`\n Smart Lock Server running on http://localhost:${PORT}\n`);
 });

@@ -30,7 +30,7 @@ are stored as bcrypt hashes; RFID tags as UIDs with an optional label.
 | POST | `/api/auth/login` | Sign in. Returns a JWT |
 | GET | `/api/auth/me` | Verify a token |
 
-### Devices — all require a JWT
+### Devices (all require a JWT)
 
 | Method | Path | Purpose |
 |---|---|---|
@@ -50,10 +50,10 @@ are stored as bcrypt hashes; RFID tags as UIDs with an optional label.
 
 | Event | Payload |
 |---|---|
-| `esp_auth` | `{ device_token }` — authenticate on connect |
-| `pin_changed` | `{ new_pin }` — user entered a new PIN on the keypad |
-| `rfid_scanned` | `{ tag_uid, label }` — card presented to the reader |
-| `access_attempt` | `{ method, success, detail }` — log an unlock attempt |
+| `esp_auth` | `{ device_token }`, authenticate on connect |
+| `pin_changed` | `{ new_pin }`, user entered a new PIN on the keypad |
+| `rfid_scanned` | `{ tag_uid, label }`, card presented to the reader |
+| `access_attempt` | `{ method, success, detail }`, log an unlock attempt |
 
 ### Server to ESP32
 

@@ -28,9 +28,7 @@
 #include <ArduinoJson.h>
 #include <SocketIOclient.h>
 
-// ═══════════════════════════════════════════════════
 //  CONFIGURATION — CHANGE THESE
-// ═══════════════════════════════════════════════════
 
 const char* WIFI_SSID      = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD  = "YOUR_WIFI_PASSWORD";
@@ -41,9 +39,7 @@ const bool  USE_SSL        = false;
 
 const char* DEVICE_TOKEN   = "PASTE_YOUR_DEVICE_TOKEN_HERE";
 
-// ═══════════════════════════════════════════════════
 //  PIN DEFINITIONS
-// ═══════════════════════════════════════════════════
 
 #define RFID_SS_PIN    5
 #define RFID_RST_PIN   4
@@ -71,9 +67,7 @@ byte colPins[KEYPAD_COLS] = {26, 25, 33, 32};
 #define SERVO_UNLOCKED  0
 #define AUTO_LOCK_TIMEOUT  5000
 
-// ═══════════════════════════════════════════════════
 //  GLOBAL OBJECTS
-// ═══════════════════════════════════════════════════
 
 MFRC522 rfid(RFID_SS_PIN, RFID_RST_PIN);
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, KEYPAD_ROWS, KEYPAD_COLS);
@@ -81,9 +75,7 @@ Adafruit_SSD1306 display(OLED_WIDTH, OLED_HEIGHT, &Wire, -1);
 Servo lockServo;
 SocketIOclient socketIO;
 
-// ═══════════════════════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════════════════
 
 enum LockState {
   STATE_IDLE,
@@ -115,9 +107,7 @@ bool changePinFirstEntry = true;
 // Timing
 unsigned long unlockTime = 0;
 
-// ═══════════════════════════════════════════════════
 //  SETUP
-// ═══════════════════════════════════════════════════
 
 void setup() {
   Serial.begin(115200);
@@ -167,9 +157,7 @@ void setup() {
   displayIdle();
 }
 
-// ═══════════════════════════════════════════════════
 //  MAIN LOOP
-// ═══════════════════════════════════════════════════
 
 void loop() {
   socketIO.loop();
@@ -184,9 +172,7 @@ void loop() {
   }
 }
 
-// ═══════════════════════════════════════════════════
 //  SOCKET.IO
-// ═══════════════════════════════════════════════════
 
 void connectToServer() {
   if (USE_SSL) {
@@ -319,9 +305,7 @@ void sendEvent(const String& event, const String& jsonData) {
   Serial.printf("[IO] Sent: %s\n", message.c_str());
 }
 
-// ═══════════════════════════════════════════════════
 //  KEYPAD
-// ═══════════════════════════════════════════════════
 
 void handleKeypad() {
   char key = keypad.getKey();
@@ -420,9 +404,7 @@ void handleKeypad() {
   }
 }
 
-// ═══════════════════════════════════════════════════
 //  PIN VERIFICATION
-// ═══════════════════════════════════════════════════
 
 void verifyPin(const String& pin) {
   if (pin.length() == 0) {
@@ -440,9 +422,7 @@ void verifyPin(const String& pin) {
   }
 }
 
-// ═══════════════════════════════════════════════════
 //  RFID
-// ═══════════════════════════════════════════════════
 
 void handleRFID() {
   rfid.PCD_Init();
@@ -503,9 +483,7 @@ void handleRFID() {
   }
 }
 
-// ═══════════════════════════════════════════════════
 //  MULTI-FACTOR CHECK & LOCK CONTROL
-// ═══════════════════════════════════════════════════
 
 void checkAllFactors() {
   int required = 0;
@@ -596,9 +574,7 @@ void handleAutoLock() {
   }
 }
 
-// ═══════════════════════════════════════════════════
 //  OLED DISPLAY
-// ═══════════════════════════════════════════════════
 
 void displayMessage(const char* line1, const char* line2) {
   display.clearDisplay();
