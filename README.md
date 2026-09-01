@@ -181,11 +181,10 @@ web/
   middleware/      JWT verification
   routes/          Auth and device REST endpoints
   public/          Dashboard, single-file frontend
-docs/
   API.md           REST endpoints and WebSocket events
 ```
 
-Full endpoint and event reference: [docs/API.md](docs/API.md).
+Full endpoint and event reference: [web/API.md](web/API.md).
 
 ## Built with
 
