@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Lock Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e1e4e8;
+      min-height: 100vh;
+    }
+
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .auth-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .auth-box h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+
+    .auth-box p.subtitle {
+      color: #8b949e;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: #8b949e;
+      margin-bottom: 0.3rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e1e4e8;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus { border-color: #58a6ff; }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary { background: #238636; color: white; width: 100%; padding: 0.7rem; }
+    .btn-blue { background: #1f6feb; color: white; }
+    .btn-red { background: #da3633; color: white; padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+    .btn-outline { background: transparent; border: 1px solid #30363d; color: #e1e4e8; }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #8b949e;
+    }
+
+    .auth-toggle a { color: #58a6ff; cursor: pointer; text-decoration: none; }
+
+    .error-msg {
+      background: #da363322;
+      border: 1px solid #da3633;
+      color: #f85149;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .dashboard { display: none; }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .topbar h1 { font-size: 1.1rem; }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: #8b949e;
+    }
+
+    .main-content {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .device-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .device-selector select { max-width: 250px; }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-dot.online { background: #3fb950; }
+    .status-dot.offline { background: #8b949e; }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card h2 { font-size: 1rem; margin-bottom: 0.2rem; }
+
+    .card p.desc {
+      font-size: 0.8rem;
+      color: #8b949e;
+      margin-bottom: 1rem;
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tag-list { margin-bottom: 0.75rem; }
+
+    .tag-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
+      margin: 0.2rem;
+      font-size: 0.8rem;
+    }
+
+    .tag-item .remove { cursor: pointer; color: #f85149; font-weight: bold; }
+
+    .inline-form { display: flex; gap: 0.5rem; align-items: center; }
+    .inline-form input { max-width: 220px; }
+
+    .log-entry {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #21262d;
+      font-size: 0.85rem;
+    }
+
+    .log-icon { font-size: 1rem; }
+
+    .log-time {
+      color: #8b949e;
+      font-size: 0.75rem;
+      margin-left: auto;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #238636;
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: #da3633; }
+
+    .token-display {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      word-break: break-all;
+      margin-top: 0.5rem;
+      color: #f0883e;
+    }
+
+    .btn-unlock {
+      width: 100%;
+      padding: 1.2rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #238636, #2ea043);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+
+    .btn-unlock:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(46, 160, 67, 0.4);
+    }
+
+    .btn-unlock:active { transform: scale(0.98); }
+
+    .btn-unlock.sent {
+      background: linear-gradient(135deg, #1f6feb, #388bfd);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-container" id="authScreen">
+    <div class="auth-box">
+      <h1 id="authTitle">🔒 Smart Lock</h1>
+      <p class="subtitle" id="authSubtitle">Sign in to manage your locks</p>
+
+      <div class="error-msg" id="authError"></div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="username" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" autocomplete="current-password">
+      </div>
+
+      <button class="btn-primary" id="authBtn" onclick="handleAuth()">Sign In</button>
+
+      <div class="auth-toggle">
+        <span id="toggleText">Don't have an account? </span>
+        <a id="toggleLink" onclick="toggleAuthMode()">Register</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <div class="topbar">
+      <h1>🔒 Smart Lock Dashboard</h1>
+      <div class="topbar-right">
+        <span id="usernameDisplay"></span>
+        <button class="btn-outline" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+
+      <div class="device-selector">
+        <select id="deviceSelect" onchange="loadDevice()"></select>
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText" style="font-size:0.8rem; color:#8b949e;"></span>
+        <button class="btn-outline" onclick="addDevice()" style="margin-left:auto; font-size:0.8rem;">+ Add Lock</button>
+      </div>
+
+      <div class="card" id="tokenCard">
+        <h2>Device Token</h2>
+        <p class="desc">Flash this token into your ESP32 firmware to connect it</p>
+        <div class="token-display" id="deviceToken"></div>
+      </div>
+
+      <div class="card">
+        <h2>🔢 PIN Code</h2>
+        <p class="desc">Send a change-PIN command to the lock — type the new PIN on the physical keypad</p>
+        <div class="card-actions">
+          <button class="btn-blue" onclick="changePin()">Change PIN</button>
+          <span id="pinStatus" style="font-size:0.8rem; color:#8b949e;"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>💳 RFID Cards</h2>
+        <p class="desc">Register cards by sending a scan command — then tap your card on the lock</p>
+        <div class="tag-list" id="rfidList"></div>
+        <div class="card-actions">
+          <input type="text" id="rfidLabel" placeholder="Card label (optional)" style="max-width:180px;">
+          <button class="btn-blue" onclick="scanRfid()">Scan New Card</button>
+        </div>
+      </div>
+
+      <!-- Dashboard Unlock -->
+      <div class="card">
+        <h2>📱 Phone Unlock</h2>
+        <p class="desc">Tap the button below as one of your authentication factors</p>
+        <div class="card-actions">
+          <button class="btn-unlock" id="unlockBtn" onclick="dashUnlock()">🔓 UNLOCK</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📋 Access Log</h2>
+        <p class="desc">Recent unlock attempts</p>
+        <div id="logList">
+          <p style="font-size:0.85rem; color:#8b949e;">No activity yet</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    let token = localStorage.getItem('token');
+    let user = JSON.parse(localStorage.getItem('user') || 'null');
+    let devices = [];
+    let currentDevice = null;
+    let socket = null;
+    let isRegister = false;
+
+    if (token && user) {
+      showDashboard();
+    }
+
+    function toggleAuthMode() {
+      isRegister = !isRegister;
+      document.getElementById('authTitle').textContent = isRegister ? '🔒 Create Account' : '🔒 Smart Lock';
+      document.getElementById('authSubtitle').textContent = isRegister ? 'Register to get started' : 'Sign in to manage your locks';
+      document.getElementById('authBtn').textContent = isRegister ? 'Register' : 'Sign In';
+      document.getElementById('toggleText').textContent = isRegister ? 'Already have an account? ' : "Don't have an account? ";
+      document.getElementById('toggleLink').textContent = isRegister ? 'Sign In' : 'Register';
+      document.getElementById('authError').style.display = 'none';
+    }
+
+    async function handleAuth() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('authError');
+
+      if (!username || !password) {
+        errorEl.textContent = 'Please fill in both fields';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
+
+      try {
+        const res = await api(endpoint, 'POST', { username, password }, false);
+
+        token = res.token;
+        user = res.user;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+
+        if (res.deviceToken) {
+          toast(`Account created! Device token: ${res.deviceToken.slice(0, 8)}...`);
+        }
+
+        showDashboard();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      }
+    }
+
+    document.getElementById('password').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleAuth();
+    });
+
+    function logout() {
+      token = null;
+      user = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (socket) socket.disconnect();
+      document.getElementById('authScreen').style.display = 'flex';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+
+    async function showDashboard() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('usernameDisplay').textContent = user.username;
+
+      connectSocket();
+      await loadDevices();
+    }
+
+    function connectSocket() {
+      socket = io();
+      socket.on('connect', () => {
+        socket.emit('dash_auth', { userId: user.id });
+      });
+
+      socket.on('device_status', (data) => {
+        if (currentDevice && data.device_id === currentDevice.id) {
+          updateStatusDot(data.is_online);
+        }
+        const dev = devices.find(d => d.id === data.device_id);
+        if (dev) dev.is_online = data.is_online ? 1 : 0;
+      });
+
+      socket.on('pin_updated', () => {
+        toast('PIN updated successfully!');
+        loadPinStatus();
+      });
+
+      socket.on('rfid_added', (data) => {
+        toast(`RFID card "${data.label}" registered!`);
+        loadRfid();
+      });
+
+      socket.on('access_attempt', (data) => {
+        const icon = data.success ? '✅' : '❌';
+        toast(`${icon} ${data.method} access ${data.success ? 'granted' : 'denied'}`);
+        loadLog();
+      });
+    }
+
+    async function loadDevices() {
+      const res = await api('/api/devices');
+      devices = res.devices;
+
+      const select = document.getElementById('deviceSelect');
+      select.innerHTML = devices.map(d =>
+        `<option value="${d.id}">${d.label}</option>`
+      ).join('');
+
+      if (devices.length > 0) {
+        currentDevice = devices[0];
+        loadDevice();
+      }
+    }
+
+    async function loadDevice() {
+      const select = document.getElementById('deviceSelect');
+      currentDevice = devices.find(d => d.id === parseInt(select.value));
+      if (!currentDevice) return;
+
+      document.getElementById('deviceToken').textContent = currentDevice.device_token;
+      updateStatusDot(currentDevice.is_online);
+      await Promise.all([loadPinStatus(), loadRfid(), loadLog()]);
+    }
+
+    function updateStatusDot(isOnline) {
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusText');
+      dot.className = `status-dot ${isOnline ? 'online' : 'offline'}`;
+      text.textContent = isOnline ? 'Online' : 'Offline';
+    }
+
+    async function addDevice() {
+      const label = prompt('Label for the new lock:');
+      if (!label) return;
+
+      const res = await api('/api/devices', 'POST', { label });
+      toast(`Lock "${label}" created! Token: ${res.device.device_token.slice(0, 8)}...`);
+      await loadDevices();
+    }
+
+    async function loadPinStatus() {
+      const res = await api(`/api/devices/${currentDevice.id}/pin`);
+      const status = document.getElementById('pinStatus');
+      status.textContent = res.hasPin
+        ? `Last updated: ${new Date(res.updatedAt).toLocaleString()}`
+        : 'No PIN set';
+    }
+
+    async function changePin() {
+      try {
+        const res = await api(`/api/devices/${currentDevice.id}/pin`, 'POST');
+        toast(res.message);
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    async function loadRfid() {
+      const res = await api(`/api/devices/${currentDevice.id}/rfid`);
+      const list = document.getElementById('rfidList');
+
+      if (res.tags.length === 0) {
+        list.innerHTML = '<p style="font-size:0.8rem; color:#8b949e; margin-bottom:0.5rem;">No cards registered</p>';
+        return;
+      }
+
+      list.innerHTML = res.tags.map(t => `
+        <span class="tag-item">
+          💳 ${t.label} <code style="color:#8b949e;">${t.tag_uid}</code>
+          <span class="remove" onclick="removeRfid(${t.id})">✕</span>
+        </span>
+      `).join('');
+    }
+
+    async function scanRfid() {
+      const label = document.getElementById('rfidLabel').value.trim() || 'My Card';
+      try {
+        const res = await api(`/api/devices/${currentDevice.id}/rfid`, 'POST', { label });
+        toast(res.message);
+        document.getElementById('rfidLabel').value = '';
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    async function removeRfid(tagId) {
+      if (!confirm('Remove this RFID card?')) return;
+      await api(`/api/devices/${currentDevice.id}/rfid/${tagId}`, 'DELETE');
+      toast('Card removed');
+      loadRfid();
+    }
+
+    // ─── DASHBOARD UNLOCK ──────────────────────────
+    async function dashUnlock() {
+      const btn = document.getElementById('unlockBtn');
+      try {
+        const res = await api(`/api/devices/${currentDevice.id}/dash-unlock`, 'POST');
+        btn.textContent = '✅ SENT';
+        btn.classList.add('sent');
+        toast(res.message);
+
+        setTimeout(() => {
+          btn.textContent = '🔓 UNLOCK';
+          btn.classList.remove('sent');
+        }, 3000);
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    async function loadLog() {
+      const res = await api(`/api/devices/${currentDevice.id}/log`);
+      const list = document.getElementById('logList');
+
+      if (res.logs.length === 0) {
+        list.innerHTML = '<p style="font-size:0.85rem; color:#8b949e;">No activity yet</p>';
+        return;
+      }
+
+      list.innerHTML = res.logs.slice(0, 20).map(l => `
+        <div class="log-entry">
+          <span class="log-icon">${l.success ? '✅' : '❌'}</span>
+          <span>${l.method}${l.detail ? ` — ${l.detail}` : ''}</span>
+          <span class="log-time">${new Date(l.timestamp).toLocaleString()}</span>
+        </div>
+      `).join('');
+    }
+
+    async function api(path, method = 'GET', body = null, auth = true) {
+      const opts = {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+      };
+
+      if (auth && token) {
+        opts.headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      if (body) {
+        opts.body = JSON.stringify(body);
+      }
+
+      const res = await fetch(path, opts);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Request failed');
+      }
+
+      return data;
+    }
+
+    function toast(message, isError = false) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.className = `toast show ${isError ? 'error' : ''}`;
+      setTimeout(() => el.className = 'toast', 3000);
+    }
+  </script>
+</body>
+</html>
