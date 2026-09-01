@@ -35,7 +35,7 @@
 const char* WIFI_SSID      = "YOUR_WIFI_SSID";
 const char* WIFI_PASSWORD  = "YOUR_WIFI_PASSWORD";
 
-const char* SERVER_HOST    = "172.20.10.4";
+const char* SERVER_HOST    = "YOUR_SERVER_IP";
 const int   SERVER_PORT    = 3000;
 const bool  USE_SSL        = false;
 
